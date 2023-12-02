@@ -38,7 +38,7 @@ cargo run --bin day01
 ## Progress
 
 - [x] [day01](./src/bin/day01.rs)
-- [ ] [day02](./src/bin/day02.rs)
+- [x] [day02](./src/bin/day02.rs)
 
 ## Resources
 
