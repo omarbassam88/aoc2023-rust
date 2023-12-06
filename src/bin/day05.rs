@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fs;
 
 fn main() {
@@ -9,94 +8,91 @@ fn main() {
     println!("  Part 2: {}", part2(&input));
 }
 
+type RangesMap = Vec<Vec<u64>>;
+
 fn parse_range(line: &str) -> Vec<u64> {
     line.split(" ")
         .filter_map(|s| s.parse::<u64>().ok())
         .collect()
 }
 
-fn parse_map(s: &str) -> (&str, Vec<Vec<u64>>) {
+fn parse_map(s: &str) -> RangesMap {
     let mut s_iter = s.split(" map:\n");
-    let title = s_iter.next().unwrap();
-    let data = s_iter.next().unwrap().lines().map(parse_range).collect();
-    (title, data)
+    let data = s_iter.nth(1).unwrap().lines().map(parse_range).collect();
+    data
 }
 
 fn part1(input: &String) -> u64 {
     let mut input_iter = input.split("\n\n");
-    let mut seeds: Vec<u64> = input_iter
+    let seeds: Vec<u64> = input_iter
         .next()
         .unwrap()
         .split(" ")
         .skip(1)
         .filter_map(|s| s.parse::<u64>().ok())
         .collect();
-    let mut maps: Vec<Vec<Vec<u64>>> = vec![];
+    let mut maps: Vec<RangesMap> = vec![];
     while let Some(entry) = input_iter.next() {
-        let (_, data) = parse_map(entry);
+        let data = parse_map(entry);
         maps.push(data);
     }
 
-    for i in 0..seeds.len() {
-        for map in &maps {
-            for range in map {
-                if range[1] < seeds[i] && seeds[i] < range[1] + range[2] {
-                    let val = seeds[i] - range[1] + range[0];
-                    seeds[i] = val;
+    let mut min_loc = std::u64::MAX;
+    for seed in seeds {
+        let mut current = seed;
+        for ranges in &maps {
+            for range in ranges {
+                if range[1] <= current && current < range[1] + range[2] {
+                    let val = current - range[1] + range[0];
+                    current = val;
                     break;
                 }
             }
         }
+        if current < min_loc {
+            min_loc = current;
+        }
     }
 
-    *seeds.iter().min().unwrap()
+    min_loc
 }
 
 fn part2(input: &String) -> u64 {
     let mut input_iter = input.split("\n\n");
-    let seeds_ranges: Vec<u64> = input_iter
+    let seeds_input: Vec<u64> = input_iter
         .next()
         .unwrap()
         .split(" ")
         .skip(1)
         .filter_map(|s| s.parse::<u64>().ok())
         .collect();
+    let seeds_ranges: Vec<_> = seeds_input.chunks(2).collect();
     let mut maps: Vec<Vec<Vec<u64>>> = vec![];
     while let Some(entry) = input_iter.next() {
-        let (_, data) = parse_map(entry);
+        let data = parse_map(entry);
         maps.push(data);
     }
 
-    let mut seeds = vec![];
-    for i in (0..seeds_ranges.len()).step_by(2) {
-        let start = seeds_ranges[i];
-        let end = start + seeds_ranges[i + 1];
-        for j in start..end {
-            seeds.push(j);
-        }
-    }
-    let mappings: Vec<HashMap<u64, u64>> = maps
-        .iter()
-        .map(|ranges| {
-            let mut m = HashMap::new();
-            for range in ranges {
-                let dest_start = range[0];
-                let source_start = range[1];
-                let offset = range[2];
-                for i in 0..offset {
-                    m.insert(source_start + i, dest_start + i);
+    let mut min_loc = std::u64::MAX;
+    for seed_range in &seeds_ranges {
+        for seed in seed_range[0]..seed_range[0] + seed_range[1] {
+            let mut current = seed;
+            for ranges in &maps {
+                for range in ranges {
+                    if range[1] <= current && current < range[1] + range[2] {
+                        let val = current - range[1] + range[0];
+                        current = val;
+                        break;
+                    }
                 }
             }
-            m
-        })
-        .collect();
-    for i in 0..seeds.len() {
-        for map in &mappings {
-            seeds[i] = *map.get(&seeds[i]).unwrap_or(&seeds[i]);
+            if current < min_loc {
+                min_loc = current;
+            }
         }
     }
 
-    *seeds.iter().min().unwrap()
+    min_loc
 }
 
 #[cfg(test)]
