@@ -41,7 +41,8 @@ cargo run --bin day01
 - [x] [day02](./src/bin/day02.rs)
 - [x] [day03](./src/bin/day03.rs)
 - [x] [day04](./src/bin/day04.rs)
-- [ ] [day04](./src/bin/day05.rs)
+- [ ] [day05](./src/bin/day05.rs)
+- [x] [day06](./src/bin/day06.rs)
 
 ## Resources
 
