@@ -22,7 +22,7 @@ fn part1(input: &String) -> u32 {
     let mut wins: u32 = 1;
     let mut ways;
     for (duration, record) in durations.zip(records) {
-	ways = 0;
+        ways = 0;
         for hold in 1..duration {
             let distance = (duration - hold) * hold;
             if distance > record {
